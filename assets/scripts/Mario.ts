@@ -106,7 +106,7 @@ export class Mario extends cc.Component {
             this.timeNode.getComponent(cc.Label).string = this.recentTime;
         } else {
             this.unschedule(this.reduceTime);
-            this.gameOver();
+            this.GameMgr.gameOver();
         }
     }
 
@@ -118,14 +118,10 @@ export class Mario extends cc.Component {
         this.schedule(this.reduceTime, 1);
         this.recentTime = 300;
         if (this.lives <= 0) {
-            console.log('Game Over');
+            this.GameMgr.gameOver();
         } else {
             this.resetPosition();
         }
-    }
-
-    gameOver(){
-
     }
 
     decideAnim() {

@@ -50,6 +50,10 @@ export class GameMgr extends cc.Component {
 
     update (dt) {}
 
+    stopPlay(){
+        cc.audioEngine.stopMusic();
+    }
+
     playJump() {
         cc.audioEngine.playEffect(this.jump, false);
     }
@@ -82,9 +86,12 @@ export class GameMgr extends cc.Component {
         cc.audioEngine.playEffect(this.smaller, false);
     }
 
-    playGameover() {
+    gameOver(){
+        cc.audioEngine.stopMusic();
         cc.audioEngine.playEffect(this.gameover, false);
+        cc.director.loadScene("gameOver");
     }
+    
 
 
 }
