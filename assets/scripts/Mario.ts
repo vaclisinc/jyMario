@@ -1,6 +1,5 @@
-import { GameMgr } from "./GameMgr";
-
 const { ccclass, property } = cc._decorator;
+import { GameMgr } from "./GameMgr";
 
 @ccclass
 export class Mario extends cc.Component {
@@ -9,8 +8,10 @@ export class Mario extends cc.Component {
     private isOnGround: boolean = false;
     private isOnItems: boolean = false;
     private isJumping: boolean = false;
+    private initialPosition: cc.Vec3;
     private lives: number;
     private scores: number;
+    private coins: number;
     private recentTime: number;
     private idleFrame: cc.SpriteFrame = null;
     private anim: cc.Animation = null;
@@ -19,7 +20,6 @@ export class Mario extends cc.Component {
     @property moveSpeed: number;
     @property jumpSpeed: number;
     @property jumpDuration: number = 500;
-    @property initialPosition: cc.Vec3;
     @property(GameMgr) GameMgr: GameMgr = null;
     @property(cc.Node) ground = null;
     @property(cc.Node) lifeNode = null;
@@ -28,7 +28,7 @@ export class Mario extends cc.Component {
     @property(cc.Node) scoreNode = null;
 
     onLoad() {
-        this.node.setPosition(this.initialPosition);
+        this.node.setPosition(223.711, 87.699, 0);
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
         cc.director.getPhysicsManager().enabled = true;
@@ -50,28 +50,38 @@ export class Mario extends cc.Component {
     }
 
     onBeginContact(contact, selfCollider, otherCollider) {
-        if (otherCollider.node.group === 'ground') { //|| otherCollider.node.group === 'items'
-            const contactNormal = contact.getWorldManifold().normal;
-            // this.isOnGround = true;
+        const contactNormal = contact.getWorldManifold().normal;
+        if (otherCollider.node.group === 'ground') {
             if (contactNormal.y < 0) {
                 this.isOnGround = true;
                 this.rigidBody.linearVelocity.y = 0;
             }
         }
         if (otherCollider.node.group === 'items'){
-            const contactNormal = contact.getWorldManifold().normal;
-            // this.isOnItems = true;
             if (contactNormal.y < 0) {
                 this.isOnItems = true;
                 this.rigidBody.linearVelocity.y = 0;
             }
         }
+        if (otherCollider.node.name === "coin"){
+            this.GameMgr.playCoin();
+            this.updateCoins();
+            this.updateScore(100);
+        }
     }
 
+    updateCoins(){
+        this.coins += 1;
+        this.coinNode.getComponent(cc.Label).string = this.coins;
+    }
 
+    updateScore( score : number ){
+        this.scores += 100;
+        this.scoreNode.getComponent(cc.Label).string = this.scores.toString().padStart(7, '0');
+    }
 
     onEndContact(contact, selfCollider, otherCollider) {
-        if (otherCollider.node.group === 'ground') {  //&& otherCollider.node.group === 'items'
+        if (otherCollider.node.group === 'ground') {
             this.isOnGround = false;
         }
         if (otherCollider.node.group === 'items'){
@@ -88,12 +98,12 @@ export class Mario extends cc.Component {
                 this._hAxis++;
                 break;
             case cc.macro.KEY.up: //jump
-                console.log("UP" + this.isOnGround + this.isOnItems);
+                // console.log("UP" + this.isOnGround + this.isOnItems);
                 if (this.isOnGround || this.isOnItems) {
                     console.log("jump!");
                     this.isJumping = true;
                     this.GameMgr.playJump();
-                    setTimeout(() => {
+                    setTimeout( () => {
                         this.isJumping = false;
                     }, this.jumpDuration * 1000);
                 }
@@ -181,9 +191,10 @@ export class Mario extends cc.Component {
 
 
     initValue() {
-        // this.initialPosition = this.node.position;
+        this.initialPosition = this.node.position;
         this.lives = 3;
         this.scores = 0;
+        this.coins = 0;
         this.recentTime = 300;
     }
 

@@ -1,54 +1,53 @@
-// Learn TypeScript:
-//  - https://docs.cocos.com/creator/manual/en/scripting/typescript.html
-// Learn Attribute:
-//  - https://docs.cocos.com/creator/manual/en/scripting/reference/attributes.html
-// Learn life-cycle callbacks:
-//  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
-
 const {ccclass, property} = cc._decorator;
 
 @ccclass
 export class GameMgr extends cc.Component {
 
-    @property(cc.AudioClip)
-    bgm: cc.AudioClip = null;
-
-    @property(cc.AudioClip)
-    jump: cc.AudioClip = null;
-
-    @property(cc.AudioClip)
-    hit: cc.AudioClip = null;
-
-    @property(cc.AudioClip)
-    coin: cc.AudioClip = null;
-
-    @property(cc.AudioClip)
-    die: cc.AudioClip = null;
-
-    @property(cc.AudioClip)
-    pass: cc.AudioClip = null;
-
-    @property(cc.AudioClip)
-    mushroom: cc.AudioClip = null;
-
-    @property(cc.AudioClip)
-    bigger: cc.AudioClip = null;
-
-    @property(cc.AudioClip)
-    smaller: cc.AudioClip = null;
-
-    @property(cc.AudioClip)
-    gameover: cc.AudioClip = null;
+    @property(cc.AudioClip) bgm: cc.AudioClip = null;
+    @property(cc.AudioClip) jump: cc.AudioClip = null;
+    @property(cc.AudioClip) hit: cc.AudioClip = null;
+    @property(cc.AudioClip) die: cc.AudioClip = null;
+    @property(cc.AudioClip) pass: cc.AudioClip = null;
+    @property(cc.AudioClip) mushroom: cc.AudioClip = null;
+    @property(cc.AudioClip) bigger: cc.AudioClip = null;
+    @property(cc.AudioClip) smaller: cc.AudioClip = null;
+    @property(cc.AudioClip) gameover: cc.AudioClip = null;
+    @property(cc.AudioClip) coin: cc.AudioClip = null;
+    @property(cc.Prefab) coinPrefab = null;
+    @property(cc.Node) gameStart = null;
 
     // LIFE-CYCLE CALLBACKS:
 
-    onLoad () {}
+    onLoad () {
+        // this.coinInit();
+    }
 
     start () {
-        cc.audioEngine.playMusic(this.bgm, true);
+        setTimeout( () => {
+            this.gameStart.destroy();
+            cc.audioEngine.playMusic(this.bgm, true);
+            this.coinInit();
+        }, 1000);
     }
 
     update (dt) {}
+
+    coinInit(){
+        this.setNewCoinPos(-502.731, 15.415);
+        this.setNewCoinPos(-336.757, -115);
+        this.setNewCoinPos(-280.269, -115);
+        this.setNewCoinPos(-93.373, 31.454);
+        this.setNewCoinPos(91.431, -108);
+        this.setNewCoinPos(91.431, -69.5);
+        this.setNewCoinPos(91.431, -31);
+        this.setNewCoinPos(634.042, -118.298);
+    }
+
+    setNewCoinPos(x:number, y:number){
+        var coin = cc.instantiate(this.coinPrefab);
+        coin.setPosition(x, y);
+        cc.find("coins").addChild(coin);
+    }
 
     stopPlay(){
         cc.audioEngine.stopMusic();
@@ -60,10 +59,6 @@ export class GameMgr extends cc.Component {
 
     playHit() {
         cc.audioEngine.playEffect(this.hit, false);
-    }
-
-    playCoin() {
-        cc.audioEngine.playEffect(this.coin, false);
     }
 
     playDie() {
@@ -91,7 +86,9 @@ export class GameMgr extends cc.Component {
         cc.audioEngine.playEffect(this.gameover, false);
         cc.director.loadScene("gameOver");
     }
-    
 
+    playCoin(){
+        cc.audioEngine.playEffect(this.coin, false);
+    }
 
 }

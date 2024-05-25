@@ -1,4 +1,3 @@
-
 const {ccclass, property} = cc._decorator;
 
 @ccclass
@@ -17,9 +16,9 @@ export default class NewClass extends cc.Component {
     onBeginContact(contact, selfCollider, otherCollider) {
         if (otherCollider.node.name === 'Mario') {
             const contactNormal = contact.getWorldManifold().normal;
-            console.log("COLLIDE!");
             if (contactNormal.y < 0) {
                 this.anim.play("staticBrick");
+                
             }
         }
     }
