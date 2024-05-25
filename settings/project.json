@@ -5,14 +5,22 @@
   "start-scene": "c9c38270-a813-4f68-9576-2bc0beed0faa",
   "group-list": [
     "default",
-    "ground"
+    "ground",
+    "items"
   ],
   "collision-matrix": [
     [
       true,
+      true,
       true
     ],
     [
+      true,
+      true,
+      true
+    ],
+    [
+      true,
       true,
       true
     ]

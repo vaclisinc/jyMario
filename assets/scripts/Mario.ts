@@ -15,26 +15,28 @@ export class Mario extends cc.Component {
     private anim: cc.Animation = null;
     private rigidBody: cc.RigidBody;
 
-    @property moveSpeed: number = 500;
-    @property jumpSpeed: number = 900;
+    @property moveSpeed: number;
+    @property jumpSpeed: number;
+    @property jumpDuration: number = 500;
     @property initialPosition: cc.Vec3;
     @property(GameMgr) GameMgr: GameMgr = null;
     @property(cc.Node) ground = null;
-    @property(cc.Node) livesPoints = null;
-    @property(cc.Node) scorePoints = null;
-    @property(cc.Node) timePoints = null;
+    @property(cc.Node) lifeNode = null;
+    @property(cc.Node) timeNode = null;
+    @property(cc.Node) coinNode = null;
+    @property(cc.Node) scoreNode = null;
 
     onLoad() {
-        this.node.setPosition(cc.v3(223.711, 87.699, 0));
+        this.node.setPosition(this.initialPosition);
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
         cc.director.getPhysicsManager().enabled = true;
-        // cc.director.getPhysicsManager().gravity = cc.v2(0, -320); // 設置重力
     }
 
     start() {
         this.initValue();
         this.declareElement();
+        this.schedule(this.reduceTime, 1);
     }
 
 
@@ -42,55 +44,23 @@ export class Mario extends cc.Component {
         this.updatePosition();
         this.decideAnim();
         if (this.node.y < this.ground.y) {
-            this.anim.play("die");
             this.loseLife();
         }
     }
 
-    decideAnim() {
-        // this.anim.stop();
-        let velocity = this.rigidBody.linearVelocity;
-
-        if (velocity.x === 0 && velocity.y === 0) {
-            this.anim.play("idle");
-        }
-        else if (velocity.x > 0 && velocity.y === 0) { //right
-            this.node.scaleX = Math.abs(this.node.scaleX);
-            if (!this.anim.getAnimationState("run").isPlaying)
-                this.anim.play("run");
-        }
-        else if (velocity.x < 0 && velocity.y === 0) { //left this._hAxis
-            this.node.scaleX = -Math.abs(this.node.scaleX);
-            if (!this.anim.getAnimationState("run").isPlaying)
-                this.anim.play("run");
-        }
-
-    }
-
-    updatePosition(){
-        let velocity = this.rigidBody.linearVelocity;
-        if (this._hAxis !== 0) {
-            velocity.x = this._hAxis * this.moveSpeed;
-        } else if (this._hAxis === 0){
-            velocity.x = 0;
-        }
-        this.rigidBody.linearVelocity = velocity;
-    }
-
     onBeginContact(contact, selfCollider, otherCollider) {
-        if (otherCollider.node.group === 'ground') {
-            const worldManifold = contact.getWorldManifold();
-            const normal = worldManifold.normal;
-            // 確保接觸點的法線是指向上的
-            if (normal.y < 0) {
-                this.isOnGround = true;
-                this.rigidBody.linearVelocity.y = 0;
-            }
+        if (otherCollider.node.group === 'ground' || otherCollider.node.group === 'items') {
+            const contactNormal = contact.getWorldManifold().normal;
+            this.isOnGround = true;
+            // if (contactNormal.y <= 0) {
+            //     this.isOnGround = true;
+            //     // this.rigidBody.linearVelocity.y = 0;
+            // }
         }
     }
 
     onEndContact(contact, selfCollider, otherCollider) {
-        if (otherCollider.node.group === 'ground') {
+        if (otherCollider.node.group === 'ground' || otherCollider.node.group === 'items') {
             this.isOnGround = false;
         }
     }
@@ -105,15 +75,11 @@ export class Mario extends cc.Component {
                 break;
             case cc.macro.KEY.up: //jump
                 if (this.isOnGround) {
-                    // this._vAxis++;
                     this.isJumping = true;
-                    this.anim.play("jump");
                     this.GameMgr.playJump();
-                    let velocity = this.rigidBody.linearVelocity;
-                    velocity.y = this.jumpSpeed;
-                    this.rigidBody.linearVelocity = velocity;
-                    this.isOnGround = false;
-                    this.isJumping = false;
+                    setTimeout(() => {
+                        this.isJumping = false;
+                    }, this.jumpDuration * 1000);
                 }
                 break;
         }
@@ -134,8 +100,23 @@ export class Mario extends cc.Component {
         this._vAxis = clamp(this._vAxis);
     }
 
+    reduceTime() {
+        if (this.recentTime > 0) {
+            this.recentTime--;
+            this.timeNode.getComponent(cc.Label).string = this.recentTime;
+        } else {
+            this.unschedule(this.reduceTime);
+            this.gameOver();
+        }
+    }
+
     loseLife() {
+        this.anim.play("die");
         this.lives--;
+        this.lifeNode.getComponent(cc.Label).string = this.lives;
+        this.unschedule(this.reduceTime);
+        this.schedule(this.reduceTime, 1);
+        this.recentTime = 300;
         if (this.lives <= 0) {
             console.log('Game Over');
         } else {
@@ -143,9 +124,48 @@ export class Mario extends cc.Component {
         }
     }
 
+    gameOver(){
+
+    }
+
+    decideAnim() {
+        // this.anim.stop();
+        let velocity = this.rigidBody.linearVelocity;
+        if (velocity.x === 0 && velocity.y === 0) {
+            this.anim.play("idle");
+        }
+        else if (velocity.x > 0 && velocity.y === 0) { //right
+            this.node.scaleX = Math.abs(this.node.scaleX);
+            if (!this.anim.getAnimationState("run").isPlaying)
+                this.anim.play("run");
+        }
+        else if (velocity.x < 0 && velocity.y === 0) { //left this._hAxis
+            this.node.scaleX = -Math.abs(this.node.scaleX);
+            if (!this.anim.getAnimationState("run").isPlaying)
+                this.anim.play("run");
+        }
+    }
+
+    updatePosition(){
+        let velocity = this.rigidBody.linearVelocity;
+        if (this._hAxis !== 0) {
+            velocity.x = this._hAxis * this.moveSpeed;
+        } else if (this._hAxis === 0){
+            velocity.x = 0;
+        }
+        if (this.isJumping){
+            if(velocity.x < 0)
+                this.node.scaleX = -Math.abs(this.node.scaleX);
+            else if (velocity.x > 0)
+                this.node.scaleX = Math.abs(this.node.scaleX);
+            this.anim.play("jump");
+            velocity.y = this.jumpSpeed;
+        }
+        this.rigidBody.linearVelocity = velocity;
+    }
 
     initValue() {
-        this.initialPosition = this.node.position;
+        // this.initialPosition = this.node.position;
         this.lives = 3;
         this.scores = 0;
         this.recentTime = 300;
@@ -168,6 +188,7 @@ export class Mario extends cc.Component {
     onDestroy() {
         cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
         cc.systemEvent.off(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
+        this.unschedule(this.reduceTime);
     }
 }
 
