@@ -1,3 +1,5 @@
+import delayTime = cc.delayTime;
+
 const { ccclass, property } = cc._decorator;
 import { GameMgr } from "./GameMgr";
 
@@ -5,10 +7,11 @@ import { GameMgr } from "./GameMgr";
 export class Mario extends cc.Component {
     private _hAxis: number = 0;
     private _vAxis: number = 0;
+    private collisionEnabled: boolean = true;
     private isOnGround: boolean = false;
     private isOnItems: boolean = false;
     private isJumping: boolean = false;
-    private initialPosition: cc.Vec3;
+    private initialPosition: cc.Vec2;
     private lives: number;
     private scores: number;
     private coins: number;
@@ -28,14 +31,13 @@ export class Mario extends cc.Component {
     @property(cc.Node) scoreNode = null;
 
     onLoad() {
-        this.node.setPosition(223.711, 87.699, 0);
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
         cc.director.getPhysicsManager().enabled = true;
+        this.initValue();
     }
 
     start() {
-        this.initValue();
         this.declareElement();
         this.schedule(this.reduceTime, 1);
     }
@@ -44,13 +46,14 @@ export class Mario extends cc.Component {
     update(dt: number) {
         this.updatePosition();
         this.decideAnim();
-        if (this.node.y < this.ground.y) {
-            this.loseLife();
-        }
+        // if (this.node.y < this.ground.y) {
+        //     this.loseLife();
+        // }
     }
 
     onBeginContact(contact, selfCollider, otherCollider) {
         const contactNormal = contact.getWorldManifold().normal;
+
         if (otherCollider.node.group === 'ground') {
             if (contactNormal.y < 0) {
                 this.isOnGround = true;
@@ -68,20 +71,18 @@ export class Mario extends cc.Component {
             this.updateCoins();
             this.updateScore(100);
         }
-        
-        if (otherCollider.node.name === "flower"){
+
+        if (otherCollider.node.name === 'deadBound'){
+            contact.disabled = true;
             this.loseLife();
+            contact.disabled = false;
         }
-    }
 
-    updateCoins(){
-        this.coins += 1;
-        this.coinNode.getComponent(cc.Label).string = this.coins;
-    }
-
-    updateScore( score : number ){
-        this.scores += 100;
-        this.scoreNode.getComponent(cc.Label).string = this.scores.toString().padStart(7, '0');
+        if (otherCollider.node.name === "flower"){
+            otherCollider.disabled = true;
+            this.loseLife();
+            otherCollider.disabled = false;
+        }
     }
 
     onEndContact(contact, selfCollider, otherCollider) {
@@ -123,9 +124,6 @@ export class Mario extends cc.Component {
             case cc.macro.KEY.right:
                 this._hAxis--;
                 break;
-            // case cc.macro.KEY.up:
-            //     this.isJumping = false;
-            //     break;
         }
         this._hAxis = clamp(this._hAxis);
         this._vAxis = clamp(this._vAxis);
@@ -142,16 +140,34 @@ export class Mario extends cc.Component {
     }
 
     loseLife() {
+        this.collisionEnabled = false;
         this.anim.play("die");
         this.lives--;
-        this.lifeNode.getComponent(cc.Label).string = this.lives;
+        this.lifeNode.getComponent(cc.Label).string = this.lives.toString();
         this.unschedule(this.reduceTime);
-        this.schedule(this.reduceTime, 1);
-        this.recentTime = 300;
         if (this.lives <= 0) {
             this.GameMgr.gameOver();
         } else {
+            // let jumpAction1 = cc.callFunc(() => {
+            //     this.rigidBody.linearVelocity = cc.v2(0, 300);
+            // });
+            // let delay = cc.delayTime(0.5);
+            // let jumpAction2 = cc.callFunc(() => {
+            //     this.rigidBody.linearVelocity = cc.v2(0, 0);
+            // });
+            // let moveToAction = cc.moveTo(0.001, this.initialPosition);
+            // let enablePhysics = cc.callFunc(() => {
+            //     this.collisionEnabled = true;
+            //     this.recentTime = 300;
+            //     this.schedule(this.reduceTime, 1);
+            // });
+            //
+            // var sequence = cc.sequence(jumpAction1, delay, jumpAction2, moveToAction, enablePhysics);
+            // this.node.runAction(sequence);
             this.resetPosition();
+            this.collisionEnabled = true;
+            this.recentTime = 300;
+            this.schedule(this.reduceTime, 1);
         }
     }
 
@@ -191,13 +207,16 @@ export class Mario extends cc.Component {
         }
     }
 
-
     initValue() {
-        this.initialPosition = this.node.position;
+        this.node.setPosition(223.711, 87.699, 0);
+        this.initialPosition = cc.v2(223.711, 87.699);
+        this.moveSpeed = 320;
+        this.jumpSpeed = 680;
         this.lives = 3;
         this.scores = 0;
         this.coins = 0;
         this.recentTime = 300;
+        this.collisionEnabled = true;
     }
 
     declareElement() {
@@ -206,12 +225,24 @@ export class Mario extends cc.Component {
         this.rigidBody = this.node.getComponent(cc.RigidBody);
     }
 
-
     resetPosition() {
         let rigidBody = this.node.getComponent(cc.RigidBody);
         rigidBody.enabled = false;
         this.node.setPosition(this.initialPosition);
-        rigidBody.enabled = true;
+        // rigidBody.enabled = true;
+        this.scheduleOnce(() => {
+            rigidBody.enabled = true;
+        }, 1);
+    }
+
+    updateCoins(){
+        this.coins += 1;
+        this.coinNode.getComponent(cc.Label).string = this.coins;
+    }
+
+    updateScore( score : number ){
+        this.scores += 100;
+        this.scoreNode.getComponent(cc.Label).string = this.scores.toString().padStart(7, '0');
     }
 
     onDestroy() {
