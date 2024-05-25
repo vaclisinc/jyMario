@@ -68,6 +68,10 @@ export class Mario extends cc.Component {
             this.updateCoins();
             this.updateScore(100);
         }
+        
+        if (otherCollider.node.name === "flower"){
+            this.loseLife();
+        }
     }
 
     updateCoins(){
@@ -98,9 +102,7 @@ export class Mario extends cc.Component {
                 this._hAxis++;
                 break;
             case cc.macro.KEY.up: //jump
-                // console.log("UP" + this.isOnGround + this.isOnItems);
                 if (this.isOnGround || this.isOnItems) {
-                    console.log("jump!");
                     this.isJumping = true;
                     this.GameMgr.playJump();
                     setTimeout( () => {
