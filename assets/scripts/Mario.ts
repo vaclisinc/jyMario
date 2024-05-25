@@ -7,6 +7,7 @@ export class Mario extends cc.Component {
     private _hAxis: number = 0;
     private _vAxis: number = 0;
     private isOnGround: boolean = false;
+    private isOnItems: boolean = false;
     private isJumping: boolean = false;
     private lives: number;
     private scores: number;
@@ -49,19 +50,32 @@ export class Mario extends cc.Component {
     }
 
     onBeginContact(contact, selfCollider, otherCollider) {
-        if (otherCollider.node.group === 'ground' || otherCollider.node.group === 'items') {
+        if (otherCollider.node.group === 'ground') { //|| otherCollider.node.group === 'items'
             const contactNormal = contact.getWorldManifold().normal;
-            this.isOnGround = true;
-            // if (contactNormal.y <= 0) {
-            //     this.isOnGround = true;
-            //     // this.rigidBody.linearVelocity.y = 0;
-            // }
+            // this.isOnGround = true;
+            if (contactNormal.y < 0) {
+                this.isOnGround = true;
+                this.rigidBody.linearVelocity.y = 0;
+            }
+        }
+        if (otherCollider.node.group === 'items'){
+            const contactNormal = contact.getWorldManifold().normal;
+            // this.isOnItems = true;
+            if (contactNormal.y < 0) {
+                this.isOnItems = true;
+                this.rigidBody.linearVelocity.y = 0;
+            }
         }
     }
 
+
+
     onEndContact(contact, selfCollider, otherCollider) {
-        if (otherCollider.node.group === 'ground' || otherCollider.node.group === 'items') {
+        if (otherCollider.node.group === 'ground') {  //&& otherCollider.node.group === 'items'
             this.isOnGround = false;
+        }
+        if (otherCollider.node.group === 'items'){
+            this.isOnItems = false;
         }
     }
 
@@ -74,7 +88,9 @@ export class Mario extends cc.Component {
                 this._hAxis++;
                 break;
             case cc.macro.KEY.up: //jump
-                if (this.isOnGround) {
+                console.log("UP" + this.isOnGround + this.isOnItems);
+                if (this.isOnGround || this.isOnItems) {
+                    console.log("jump!");
                     this.isJumping = true;
                     this.GameMgr.playJump();
                     setTimeout(() => {
@@ -95,6 +111,9 @@ export class Mario extends cc.Component {
             case cc.macro.KEY.right:
                 this._hAxis--;
                 break;
+            // case cc.macro.KEY.up:
+            //     this.isJumping = false;
+            //     break;
         }
         this._hAxis = clamp(this._hAxis);
         this._vAxis = clamp(this._vAxis);
@@ -124,6 +143,24 @@ export class Mario extends cc.Component {
         }
     }
 
+    updatePosition(){
+        let velocity = this.rigidBody.linearVelocity;
+        if (this._hAxis !== 0) {
+            velocity.x = this._hAxis * this.moveSpeed;
+        } else if (this._hAxis === 0){
+            velocity.x = 0;
+        }
+        if (this.isJumping){
+            if(velocity.x < 0)
+                this.node.scaleX = -Math.abs(this.node.scaleX);
+            else if (velocity.x > 0)
+                this.node.scaleX = Math.abs(this.node.scaleX);
+            this.anim.play("jump");
+            velocity.y = this.jumpSpeed;
+        }
+        this.rigidBody.linearVelocity = velocity;
+    }
+
     decideAnim() {
         // this.anim.stop();
         let velocity = this.rigidBody.linearVelocity;
@@ -142,23 +179,6 @@ export class Mario extends cc.Component {
         }
     }
 
-    updatePosition(){
-        let velocity = this.rigidBody.linearVelocity;
-        if (this._hAxis !== 0) {
-            velocity.x = this._hAxis * this.moveSpeed;
-        } else if (this._hAxis === 0){
-            velocity.x = 0;
-        }
-        if (this.isJumping){
-            if(velocity.x < 0)
-                this.node.scaleX = -Math.abs(this.node.scaleX);
-            else if (velocity.x > 0)
-                this.node.scaleX = Math.abs(this.node.scaleX);
-            this.anim.play("jump");
-            velocity.y = this.jumpSpeed;
-        }
-        this.rigidBody.linearVelocity = velocity;
-    }
 
     initValue() {
         // this.initialPosition = this.node.position;
