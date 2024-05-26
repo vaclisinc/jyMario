@@ -79,11 +79,7 @@ export class Mario extends cc.Component {
             this.updateCoins();
             this.updateScore(100);
         }
-        if (otherCollider.node.name === "coin"){
-            this.GameMgr.playCoin();
-            this.updateCoins();
-            this.updateScore(100);
-        }
+
         if (otherCollider.node.name === 'deadBound' || otherCollider.node.name === 'flower'){
             // contact.disabled = true;
             this.loseLife();
@@ -176,7 +172,9 @@ export class Mario extends cc.Component {
         this.mulNode.getComponent(cc.Label).string = (this.recentTime * 50).toString();
         this.scores += this.recentTime * 50;
         this.updateScore(this.scores);
-
+        this.scheduleOnce(() => {
+            cc.director.loadScene("menu");
+        }, 5);
     }
 
     winPage(isWin: boolean){
