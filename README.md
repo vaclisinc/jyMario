@@ -75,10 +75,10 @@
    - Timer (2%)
 
 
-## Advanced Component Description : (X)
+## Advanced Component Description :
 
 1. Firebase deploy : [5%]
 
-# Firebase page link (if you deploy) (X)
+# Firebase page link (if you deploy)
 
     https://jymario-vaclis.web.app/
