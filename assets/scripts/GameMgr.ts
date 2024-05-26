@@ -79,7 +79,6 @@ export class GameMgr extends cc.Component {
         var goomba = cc.instantiate(this.goombaPrefab);
         goomba.setPosition(x, y);
         cc.find("goombas").addChild(goomba);
-        console.log('add!');
         this.goombaMove(goomba);
     }
 
@@ -122,13 +121,32 @@ export class GameMgr extends cc.Component {
         }, 1);
     }
 
-    goombaDie( goombaNode : cc.Node){
+    goombaDie( goombaNode : cc.Node ){
         let anim = goombaNode.getComponent(cc.Animation);
         cc.audioEngine.playEffect(this.hit, false);
         anim.play('goombaDie');
         this.scheduleOnce(() => {
             goombaNode.destroy();
         }, 0.5);
+    }
+
+    clearAllPrefabs(){ //flower no need to destroy
+        let goombasNode = cc.find("goombas");
+        let coinsNode = cc.find("coins");
+        if (goombasNode) {
+            goombasNode.children.forEach( (goomba) => {
+                goomba.destroy();
+            });
+        } else {
+            console.log("already no goombas");
+        }
+        if (coinsNode) {
+            coinsNode.children.forEach( (coin) => {
+                coin.destroy();
+            });
+        } else {
+            console.log("already no coins");
+        }
     }
 
     stopPlay(){

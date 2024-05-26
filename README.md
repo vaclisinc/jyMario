@@ -12,13 +12,13 @@
 |Sound Effects|10%|     Y     |
 |UI|10%|     Y     |
 
-|**Advanced Component**|**Score**|**Check**|
-|:-:|:-:|:-:|
-|firebase deploy|5%|N|
-|Leaderboard|5%|N|
-|Offline multi-player game|5%|N|
-|Online multi-player game|10%|N|
-|Others [name of functions]|1-10%|N|
+|**Advanced Component**|**Score**| **Check** |
+|:-:|:-:|:---------:|
+|firebase deploy|5%|     Y     |
+|Leaderboard|5%|     N     |
+|Offline multi-player game|5%|     N     |
+|Online multi-player game|10%|     N     |
+|Others [name of functions]|1-10%|     N     |
 
 ---
 
@@ -77,8 +77,8 @@
 
 ## Advanced Component Description : (X)
 
-Describe your advanced function and how to use it.
+1. Firebase deploy : [5%]
 
 # Firebase page link (if you deploy) (X)
 
-    your web page URL
+    https://jymario-vaclis.web.app/

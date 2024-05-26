@@ -141,6 +141,16 @@ export class Mario extends cc.Component {
 
             this.recentTime = 300;
             this.schedule(this.reduceTime, 1);
+            this.scores = 0;
+            this.scoreNode.getComponent(cc.Label).string = this.scores.toString().padStart(7, '0');
+            this.coins = 0;
+            this.coinNode.getComponent(cc.Label).string = this.coins.toString();
+
+            this.scheduleOnce( () => {
+                this.GameMgr.clearAllPrefabs();
+                this.GameMgr.goombaInit();
+                this.GameMgr.coinInit();
+            }, 1.5);
         }
     }
 
@@ -150,8 +160,12 @@ export class Mario extends cc.Component {
         this.getComponent(cc.PhysicsCollider).enabled = false;
         this.GameMgr.stopPlay();
         this.GameMgr.playDie();
-        if (animeFinishedCallback)
+        if (animeFinishedCallback) {
             this.anim.once('finished', animeFinishedCallback);
+            // this.GameMgr.clearAllPrefabs();
+            // this.GameMgr.goombaInit();
+            // this.GameMgr.coinInit();
+        }
     }
 
     stageCleared(){
@@ -250,7 +264,7 @@ export class Mario extends cc.Component {
 
     updateCoins(){
         this.coins += 1;
-        this.coinNode.getComponent(cc.Label).string = this.coins;
+        this.coinNode.getComponent(cc.Label).string = this.coins.toString();
     }
 
     updateScore( score : number ){
