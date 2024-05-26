@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "flower",
+    "_name": "goomba",
     "_objFlags": 0,
     "_parent": null,
     "_children": [],
@@ -45,8 +45,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 25,
-      "height": 35
+      "width": 20,
+      "height": 20
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -57,8 +57,8 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        -400.812,
-        -80.836,
+        128.074,
+        -8.277,
         0,
         0,
         0,
@@ -66,7 +66,7 @@
         1,
         1,
         1,
-        0.5
+        1
       ]
     },
     "_eulerAngles": {
@@ -78,8 +78,8 @@
     "_skewX": 0,
     "_skewY": 0,
     "_is3DNode": false,
-    "_groupIndex": 3,
-    "groupIndex": 3,
+    "_groupIndex": 0,
+    "groupIndex": 0,
     "_id": ""
   },
   {
@@ -98,7 +98,7 @@
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
     "_spriteFrame": {
-      "__uuid__": "f53cb9c5-7ea5-44c7-bf3e-e2c704b72e8c"
+      "__uuid__": "f7ba157e-0196-405c-869f-091a29ce9858"
     },
     "_type": 0,
     "_sizeMode": 0,
@@ -112,7 +112,7 @@
     "_fillRange": 0,
     "_isTrimmedMode": true,
     "_atlas": {
-      "__uuid__": "ccc74a2a-09bc-4343-9066-160a696e8385"
+      "__uuid__": "4d485dea-0173-4edd-a289-f95f1992b9b1"
     },
     "_id": ""
   },
@@ -125,11 +125,14 @@
     },
     "_enabled": true,
     "_defaultClip": {
-      "__uuid__": "08cf9455-a7e2-4598-8e5f-a6ad2c4ec92c"
+      "__uuid__": "45cc9e08-81d1-42d8-9aa5-cd9f5c410346"
     },
     "_clips": [
       {
-        "__uuid__": "08cf9455-a7e2-4598-8e5f-a6ad2c4ec92c"
+        "__uuid__": "45cc9e08-81d1-42d8-9aa5-cd9f5c410346"
+      },
+      {
+        "__uuid__": "7cd8165f-b2ff-452b-8027-75ced5d1e32f"
       }
     ],
     "playOnLoad": true,
@@ -177,12 +180,12 @@
     "_offset": {
       "__type__": "cc.Vec2",
       "x": 0,
-      "y": -1.8
+      "y": -4
     },
     "_size": {
       "__type__": "cc.Size",
-      "width": 18,
-      "height": 31
+      "width": 13,
+      "height": 10
     },
     "_id": ""
   },

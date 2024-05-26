@@ -1,0 +1,49 @@
+{
+  "__type__": "cc.AnimationClip",
+  "_name": "goomba",
+  "_objFlags": 0,
+  "_native": "",
+  "_duration": 0.6833333333333333,
+  "sample": 60,
+  "speed": 1,
+  "wrapMode": 2,
+  "curveData": {
+    "comps": {
+      "cc.Sprite": {
+        "spriteFrame": [
+          {
+            "frame": 0,
+            "value": {
+              "__uuid__": "f7ba157e-0196-405c-869f-091a29ce9858"
+            }
+          },
+          {
+            "frame": 0.16666666666666666,
+            "value": {
+              "__uuid__": "bab04f66-482c-4621-8ccb-251ce816a61a"
+            }
+          },
+          {
+            "frame": 0.3333333333333333,
+            "value": {
+              "__uuid__": "b4d45640-0387-42a1-8799-a76ebb94ca07"
+            }
+          },
+          {
+            "frame": 0.5,
+            "value": {
+              "__uuid__": "bab04f66-482c-4621-8ccb-251ce816a61a"
+            }
+          },
+          {
+            "frame": 0.6666666666666666,
+            "value": {
+              "__uuid__": "f7ba157e-0196-405c-869f-091a29ce9858"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "events": []
+}

@@ -15,20 +15,23 @@ export class GameMgr extends cc.Component {
     @property(cc.AudioClip) coin: cc.AudioClip = null;
     @property(cc.Prefab) coinPrefab = null;
     @property(cc.Prefab) flowerPrefab = null;
+    @property(cc.Prefab) goombaPrefab = null;
     @property(cc.Node) gameStart = null;
 
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
+        this.gameStart.active = true;
         // this.coinInit();
     }
 
     start () {
         setTimeout( () => {
-            this.gameStart.destroy();
+            this.gameStart.active = false;
             cc.audioEngine.playMusic(this.bgm, true);
             this.coinInit();
             this.flowerInit();
+            this.goombaInit();
         }, 1000);
     }
 
@@ -37,7 +40,47 @@ export class GameMgr extends cc.Component {
     }
 
     flowerInit(){
-        this.setNewFlowerPos(-400, -112.622);
+        this.setNewFlowerPos(-400, -112.622, false);
+        this.setNewFlowerPos(-223.329, -101.1, true);
+        this.setNewFlowerPos(-94.616, -83.766, false);
+    }
+
+    goombaInit(){
+        this.setNewGoombaPos(-251, -119.277);
+    }
+
+    coinInit(){
+        this.setNewCoinPos(-502.731, 15.415);
+        this.setNewCoinPos(-336.757, -80);
+        this.setNewCoinPos(-280.269, -80);
+        this.setNewCoinPos(-93.373, 31.454);
+        this.setNewCoinPos(91.431, -108);
+        this.setNewCoinPos(91.431, -69.5);
+        this.setNewCoinPos(91.431, -31);
+        this.setNewCoinPos(262, 25.5);
+        this.setNewCoinPos(272, 25.5);
+        this.setNewCoinPos(634.042, -118.298);
+    }
+
+    setNewCoinPos(x : number, y : number){
+        var coin = cc.instantiate(this.coinPrefab);
+        coin.setPosition(x, y);
+        cc.find("coins").addChild(coin);
+    }
+
+    setNewFlowerPos(x : number, y : number, isDelay : boolean){
+        var flower = cc.instantiate(this.flowerPrefab);
+        flower.setPosition(x, y);
+        cc.find("flowers").addChild(flower);
+        isDelay? this.flowerMove(flower) : this.flowerMove2(flower);
+    }
+
+    setNewGoombaPos(x : number, y : number){
+        var goomba = cc.instantiate(this.goombaPrefab);
+        goomba.setPosition(x, y);
+        cc.find("goombas").addChild(goomba);
+        console.log('add!');
+        this.goombaMove(goomba);
     }
 
     flowerMove( flowerNode : cc.Node ){
@@ -53,41 +96,56 @@ export class GameMgr extends cc.Component {
         }, 1);
     }
 
-    coinInit(){
-        this.setNewCoinPos(-502.731, 15.415);
-        this.setNewCoinPos(-336.757, -115);
-        this.setNewCoinPos(-280.269, -115);
-        this.setNewCoinPos(-93.373, 31.454);
-        this.setNewCoinPos(91.431, -108);
-        this.setNewCoinPos(91.431, -69.5);
-        this.setNewCoinPos(91.431, -31);
-        this.setNewCoinPos(634.042, -118.298);
+    flowerMove2( flowerNode : cc.Node ){
+        let action: cc.Action;
+        let easeRate: number = 2;
+        let moveUp = cc.moveBy(2, cc.v2(0, 31.786) ).easing(cc.easeInOut(easeRate));
+        let moveDown = cc.moveBy(2, cc.v2(0, -31.786)).easing(cc.easeInOut(easeRate));
+        let delay = cc.delayTime(1);
+        var sequence = cc.sequence(delay, moveUp, delay, moveDown, delay);
+        action = cc.repeatForever(sequence);
+        this.scheduleOnce( () => {
+            flowerNode.runAction(action);
+        }, 1);
     }
 
-    setNewCoinPos(x : number, y : number){
-        var coin = cc.instantiate(this.coinPrefab);
-        coin.setPosition(x, y);
-        cc.find("coins").addChild(coin);
+    goombaMove( goombaNode : cc.Node ){
+        let action: cc.Action;
+        let easeRate: number = 2;
+        let moveLeft = cc.moveBy(2, cc.v2(-116, 0) ).easing(cc.easeInOut(easeRate));
+        let moveRight = cc.moveBy(2, cc.v2(+116, 0)).easing(cc.easeInOut(easeRate));
+        // let delay = cc.delayTime(1);
+        var sequence = cc.sequence(moveLeft, moveRight);
+        action = cc.repeatForever(sequence);
+        this.scheduleOnce( () => {
+            goombaNode.runAction(action);
+        }, 1);
     }
 
-    setNewFlowerPos(x : number, y : number){
-        var flower = cc.instantiate(this.flowerPrefab);
-        flower.setPosition(x, y);
-        cc.find("flowers").addChild(flower);
-        this.flowerMove(flower);
+    goombaDie( goombaNode : cc.Node){
+        let anim = goombaNode.getComponent(cc.Animation);
+        cc.audioEngine.playEffect(this.hit, false);
+        anim.play('goombaDie');
+        this.scheduleOnce(() => {
+            goombaNode.destroy();
+        }, 0.5);
     }
 
     stopPlay(){
         cc.audioEngine.stopMusic();
     }
 
+    playBGM(){
+        cc.audioEngine.playMusic(this.bgm, true);
+    }
+
     playJump() {
         cc.audioEngine.playEffect(this.jump, false);
     }
 
-    playHit() {
-        cc.audioEngine.playEffect(this.hit, false);
-    }
+    // playHit() {
+    //     cc.audioEngine.playEffect(this.hit, false);
+    // }
 
     playDie() {
         cc.audioEngine.playEffect(this.die, false);

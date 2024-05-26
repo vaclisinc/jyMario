@@ -2,6 +2,7 @@ import delayTime = cc.delayTime;
 
 const { ccclass, property } = cc._decorator;
 import { GameMgr } from "./GameMgr";
+import RigidBody = cc.RigidBody;
 
 @ccclass
 export class Mario extends cc.Component {
@@ -29,6 +30,8 @@ export class Mario extends cc.Component {
     @property(cc.Node) timeNode = null;
     @property(cc.Node) coinNode = null;
     @property(cc.Node) scoreNode = null;
+    @property(cc.Node) timeNode2 = null;
+    @property(cc.Node) mulNode = null;
 
     onLoad() {
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
@@ -66,109 +69,108 @@ export class Mario extends cc.Component {
                 this.rigidBody.linearVelocity.y = 0;
             }
         }
+        if (otherCollider.node.name === 'backBox') {
+            if (contactNormal.y >= 0) {
+                contact.disabled = true;
+            }
+        }
         if (otherCollider.node.name === "coin"){
             this.GameMgr.playCoin();
             this.updateCoins();
             this.updateScore(100);
         }
-
-        if (otherCollider.node.name === 'deadBound'){
-            contact.disabled = true;
+        if (otherCollider.node.name === "coin"){
+            this.GameMgr.playCoin();
+            this.updateCoins();
+            this.updateScore(100);
+        }
+        if (otherCollider.node.name === 'deadBound' || otherCollider.node.name === 'flower'){
+            // contact.disabled = true;
             this.loseLife();
-            contact.disabled = false;
+            // contact.disabled = false;
         }
 
-        if (otherCollider.node.name === "flower"){
-            otherCollider.disabled = true;
-            this.loseLife();
-            otherCollider.disabled = false;
+        if(otherCollider.node.name === 'goomba'){
+            if(contactNormal.y < 0 ){
+                this.GameMgr.goombaDie(otherCollider.node);
+                this.updateScore(150);
+            } else {
+                this.loseLife();
+            }
+        }
+
+        if(otherCollider.node.name === 'Flag'){
+            this.stageCleared();
         }
     }
 
     onEndContact(contact, selfCollider, otherCollider) {
+        const contactNormal = contact.getWorldManifold().normal;
+
         if (otherCollider.node.group === 'ground') {
             this.isOnGround = false;
         }
         if (otherCollider.node.group === 'items'){
             this.isOnItems = false;
-        }
-    }
-
-    onKeyDown(event: cc.Event.EventKeyboard) {
-        switch (event.keyCode) {
-            case cc.macro.KEY.left:
-                this._hAxis--;
-                break;
-            case cc.macro.KEY.right:
-                this._hAxis++;
-                break;
-            case cc.macro.KEY.up: //jump
-                if (this.isOnGround || this.isOnItems) {
-                    this.isJumping = true;
-                    this.GameMgr.playJump();
-                    setTimeout( () => {
-                        this.isJumping = false;
-                    }, this.jumpDuration * 1000);
-                }
-                break;
-        }
-        this._hAxis = clamp(this._hAxis);
-        this._vAxis = clamp(this._vAxis);
-    }
-
-    onKeyUp(event: cc.Event.EventKeyboard) {
-        switch (event.keyCode) {
-            case cc.macro.KEY.left:
-                this._hAxis++;
-                break;
-            case cc.macro.KEY.right:
-                this._hAxis--;
-                break;
-        }
-        this._hAxis = clamp(this._hAxis);
-        this._vAxis = clamp(this._vAxis);
-    }
-
-    reduceTime() {
-        if (this.recentTime > 0) {
-            this.recentTime--;
-            this.timeNode.getComponent(cc.Label).string = this.recentTime;
-        } else {
-            this.unschedule(this.reduceTime);
-            this.GameMgr.gameOver();
+        }if (otherCollider.node.name === 'backBox') {
+            if (contactNormal.y >= 0) {
+                contact.disabled = false;
+            }
         }
     }
 
     loseLife() {
-        this.collisionEnabled = false;
-        this.anim.play("die");
         this.lives--;
         this.lifeNode.getComponent(cc.Label).string = this.lives.toString();
         this.unschedule(this.reduceTime);
         if (this.lives <= 0) {
             this.GameMgr.gameOver();
         } else {
-            // let jumpAction1 = cc.callFunc(() => {
-            //     this.rigidBody.linearVelocity = cc.v2(0, 300);
-            // });
-            // let delay = cc.delayTime(0.5);
-            // let jumpAction2 = cc.callFunc(() => {
-            //     this.rigidBody.linearVelocity = cc.v2(0, 0);
-            // });
-            // let moveToAction = cc.moveTo(0.001, this.initialPosition);
-            // let enablePhysics = cc.callFunc(() => {
-            //     this.collisionEnabled = true;
-            //     this.recentTime = 300;
-            //     this.schedule(this.reduceTime, 1);
-            // });
-            //
-            // var sequence = cc.sequence(jumpAction1, delay, jumpAction2, moveToAction, enablePhysics);
-            // this.node.runAction(sequence);
-            this.resetPosition();
-            this.collisionEnabled = true;
+            this.dieOnce(() => {
+                this.scheduleOnce(() => { //這一坨是接在dieOnce後面，是等上面的動畫播完再執行
+                    this.getComponent(cc.PhysicsCollider).enabled = true;
+                    this.node.setPosition(this.initialPosition);
+                    this.GameMgr.playBGM();
+                    let action = cc.spawn(
+                        cc.blink(1, 8),
+                        cc.flipX(true)
+                    );
+                    this.node.runAction(action);
+                }, 1);
+            });
+
             this.recentTime = 300;
             this.schedule(this.reduceTime, 1);
         }
+    }
+
+    dieOnce(animeFinishedCallback?: () => void){
+        this.getComponent(RigidBody).linearVelocity = cc.v2(0, 1000);
+        this.anim.play("die");
+        this.getComponent(cc.PhysicsCollider).enabled = false;
+        this.GameMgr.stopPlay();
+        this.GameMgr.playDie();
+        if (animeFinishedCallback)
+            this.anim.once('finished', animeFinishedCallback);
+    }
+
+    stageCleared(){
+        this.GameMgr.stopPlay();
+        this.GameMgr.playPass();
+        this.winPage(true);
+        this.timeNode2.getComponent(cc.Label).string = this.recentTime.toString();
+        this.mulNode.getComponent(cc.Label).string = (this.recentTime * 50).toString();
+        this.scores += this.recentTime * 50;
+        this.updateScore(this.scores);
+
+    }
+
+    winPage(isWin: boolean){
+        const clearNode = cc.find('Main Camera/CLEAR');
+        clearNode.active = isWin;
+        clearNode.children.forEach(child => {
+            child.active = isWin;
+        });
     }
 
     updatePosition(){
@@ -207,6 +209,16 @@ export class Mario extends cc.Component {
         }
     }
 
+    reduceTime() {
+        if (this.recentTime > 0) {
+            this.recentTime--;
+            this.timeNode.getComponent(cc.Label).string = this.recentTime;
+        } else {
+            this.unschedule(this.reduceTime);
+            this.GameMgr.gameOver();
+        }
+    }
+
     initValue() {
         this.node.setPosition(223.711, 87.699, 0);
         this.initialPosition = cc.v2(223.711, 87.699);
@@ -217,6 +229,7 @@ export class Mario extends cc.Component {
         this.coins = 0;
         this.recentTime = 300;
         this.collisionEnabled = true;
+        this.winPage(false);
     }
 
     declareElement() {
@@ -225,15 +238,15 @@ export class Mario extends cc.Component {
         this.rigidBody = this.node.getComponent(cc.RigidBody);
     }
 
-    resetPosition() {
-        let rigidBody = this.node.getComponent(cc.RigidBody);
-        rigidBody.enabled = false;
-        this.node.setPosition(this.initialPosition);
-        // rigidBody.enabled = true;
-        this.scheduleOnce(() => {
-            rigidBody.enabled = true;
-        }, 1);
-    }
+    // resetPosition() {
+    //     let rigidBody = this.node.getComponent(cc.RigidBody);
+    //     rigidBody.enabled = false;
+    //     this.node.setPosition(this.initialPosition);
+    //     // rigidBody.enabled = true;
+    //     this.scheduleOnce(() => {
+    //         rigidBody.enabled = true;
+    //     }, 1);
+    // }
 
     updateCoins(){
         this.coins += 1;
@@ -243,6 +256,41 @@ export class Mario extends cc.Component {
     updateScore( score : number ){
         this.scores += 100;
         this.scoreNode.getComponent(cc.Label).string = this.scores.toString().padStart(7, '0');
+    }
+
+    onKeyDown(event: cc.Event.EventKeyboard) {
+        switch (event.keyCode) {
+            case cc.macro.KEY.left:
+                this._hAxis--;
+                break;
+            case cc.macro.KEY.right:
+                this._hAxis++;
+                break;
+            case cc.macro.KEY.up: //jump
+                if (this.isOnGround || this.isOnItems) {
+                    this.isJumping = true;
+                    this.GameMgr.playJump();
+                    setTimeout( () => {
+                        this.isJumping = false;
+                    }, this.jumpDuration * 1000);
+                }
+                break;
+        }
+        this._hAxis = clamp(this._hAxis);
+        this._vAxis = clamp(this._vAxis);
+    }
+
+    onKeyUp(event: cc.Event.EventKeyboard) {
+        switch (event.keyCode) {
+            case cc.macro.KEY.left:
+                this._hAxis++;
+                break;
+            case cc.macro.KEY.right:
+                this._hAxis--;
+                break;
+        }
+        this._hAxis = clamp(this._hAxis);
+        this._vAxis = clamp(this._vAxis);
     }
 
     onDestroy() {
