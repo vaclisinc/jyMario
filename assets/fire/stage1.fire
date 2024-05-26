@@ -3640,7 +3640,7 @@
     "_offset": {
       "__type__": "cc.Vec2",
       "x": 0,
-      "y": -6
+      "y": -1.5
     },
     "_size": {
       "__type__": "cc.Size",
@@ -3844,7 +3844,7 @@
     "_offset": {
       "__type__": "cc.Vec2",
       "x": 0,
-      "y": -6
+      "y": -1.5
     },
     "_size": {
       "__type__": "cc.Size",
@@ -5438,7 +5438,7 @@
       "__id__": 141
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 143

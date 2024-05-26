@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "build/web-Desktop",
+    "public": "build/web-desktop",
     "ignore": [
       "firebase.json",
       "**/.*",

@@ -70,7 +70,7 @@ export class Mario extends cc.Component {
             }
         }
         if (otherCollider.node.name === 'backBox') {
-            if (contactNormal.y >= 0) {
+            if (contactNormal.y > 0) {
                 contact.disabled = true;
             }
         }

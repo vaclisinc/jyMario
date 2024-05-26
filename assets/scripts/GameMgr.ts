@@ -57,8 +57,8 @@ export class GameMgr extends cc.Component {
         this.setNewCoinPos(91.431, -108);
         this.setNewCoinPos(91.431, -69.5);
         this.setNewCoinPos(91.431, -31);
-        this.setNewCoinPos(262, 25.5);
-        this.setNewCoinPos(272, 25.5);
+        this.setNewCoinPos(252, 25.5);
+        this.setNewCoinPos(280, 25.5);
         this.setNewCoinPos(634.042, -118.298);
     }
 
@@ -122,6 +122,7 @@ export class GameMgr extends cc.Component {
     }
 
     goombaDie( goombaNode : cc.Node ){
+        goombaNode.getComponent(cc.Collider).enabled = false;
         let anim = goombaNode.getComponent(cc.Animation);
         cc.audioEngine.playEffect(this.hit, false);
         anim.play('goombaDie');
