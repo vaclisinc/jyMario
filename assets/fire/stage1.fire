@@ -907,12 +907,12 @@
     "body": null,
     "_offset": {
       "__type__": "cc.Vec2",
-      "x": 0,
+      "x": 29,
       "y": 0
     },
     "_size": {
       "__type__": "cc.Size",
-      "width": 100,
+      "width": 20,
       "height": 450
     },
     "_id": "603MrIMbtNW6o/IJ7fo9n6"
