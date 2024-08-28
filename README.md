@@ -1,14 +1,14 @@
-# [Web Mario](https://jymario-vaclis.web.app/) - Classic Platformer Game
+# [jyMario](https://jymario-vaclis.web.app/) - Classic Platformer Game
 
-[Web Mario](https://jymario-vaclis.web.app/) is a web-based clone of the classic Super Mario game, featuring familiar gameplay elements, animations, and sound effects. Built with modern web technologies and deployed on Firebase, it offers a nostalgic gaming experience directly in your browser. This project was developed as part of the Software Studio 2024 Spring Assignment.
+[jyMario](https://jymario-vaclis.web.app/) is a web-based clone of the classic Super Mario game, featuring familiar gameplay elements, animations, and sound effects. Built with game engine Cocos Creator 2.4.8 and deployed on Firebase, it offers a nostalgic gaming experience directly in your browser. This project was developed as part of the Software Studio 2024 Spring Assignment.
 
-[Insert GIF or screenshot of the game here]
-*Click on the image to see demo video*
-https://youtu.be/ME6QHLIzthU
+>[![jyMario](https://raw.githubusercontent.com/vaclisinc/jyMario/5063192bed358687e35ca0c1968eeb51a9bc270e/demo.gif)](https://youtu.be/ME6QHLIzthU)
+>*Click on the image to see demo video*
+
 
 ## How to Play
 
-1. Visit the [Web Mario](https://jymario-vaclis.web.app/) website
+1. Visit the [jyMario](https://jymario-vaclis.web.app/) website
 2. Use LEFT and RIGHT arrow keys to move
 3. Press UP arrow key to jump
 4. Collect coins and defeat enemies to score points
@@ -17,7 +17,7 @@ https://youtu.be/ME6QHLIzthU
 ### Prerequisites
 
 - Modern web browser
-- (For development) Basic understanding of Cocos Creator 2.4.8
+- (For development) Basic understanding of TypeScript and Cocos Creator 2.4.8
 
 ## Features
 
