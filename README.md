@@ -3,7 +3,7 @@
 [jyMario](https://jymario-vaclis.web.app/) is a web-based clone of the classic Super Mario game, featuring familiar gameplay elements, animations, and sound effects. Built with game engine Cocos Creator 2.4.8 and deployed on Firebase, it offers a nostalgic gaming experience directly in your browser. This project was developed as part of the Software Studio 2024 Spring Assignment.
 
 >[![jyMario](https://raw.githubusercontent.com/vaclisinc/jyMario/5063192bed358687e35ca0c1968eeb51a9bc270e/demo.gif)](https://youtu.be/ME6QHLIzthU)
->*Click on the image to see demo video*
+><br>*Click on the image to see demo video*
 
 
 ## How to Play
